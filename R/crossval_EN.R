@@ -1,29 +1,35 @@
+#choose alpha,and lambda for elastic net
+
+source("R/coordinate_descent_EN.R")
+source("R/predict.R")
+
 # Clean Global Environment
 library(ggplot2)
 library(magrittr)
-
-# Get Lasso Solver
-source("R/coordinate_descent_lasso.R")
-# Get Predict Function
-source("R/predict.R")
+#rm(list = ls())
 
 # Pick Lambda using cross-validation
 
-cv.lasso <- function(lambda_max = 5,
+cv.EN <- function(lambda_max = 10,
                      step_lambda = .1,
                      n_folds = 10,
                      y,
                      X,
                      one_stderr_rule = TRUE){
 
+  # set K-folds
   if (nrow(X) %% n_folds != 0){
     warning("Data not perfectly divisible into n balanced folds. Rounding...")
   }
 
   folds <- sample(rep(1:n_folds, ceiling(nrow(X) / n_folds)), size = length(y))
 
-  cv.one_pass <- function(lambda){
+  # get MSE wrt lambda
+  cv.one_passEN <- function(lambda, alpha){
+
+    # Target errors vector
     errors <- numeric(n_folds)
+
     for (i in 1:n_folds){
 
       Xtest = X[folds == i, ]
@@ -31,29 +37,53 @@ cv.lasso <- function(lambda_max = 5,
       Xtrain = X[folds != i, ]
       ytrain = y[folds != i]
 
-      beta.lasso <- lasso.solve(ytrain, Xtrain, lambda = lambda)
-      ypred <- predict(beta.lasso, Xtest)
+      beta.EN <- elasticNet.solve(ytrain, Xtrain, lambda = lambda, alpha = alpha)
+      ypred <- predict(beta.EN, Xtest)
 
       errors[i] <- mean((ytest - ypred)^2)
     }
     return(list(error = mean(errors), std = sd(errors)))
   }
 
+  # Init grid of lambdas and alphas
   lambdas <- seq(0, lambda_max, step_lambda)
+  alphas<-seq(0, 1, 0.1)
 
   df <- data.frame(lambda = lambdas,
+                   alpha = numeric(length(lambdas)),
                    estimated_error = numeric(length(lambdas)),
                    std = numeric(length(lambdas)))
 
-  for (l in 1:length(df$lambda)){
-    one_pass <- cv.one_pass(lambda = df$lambda[l])
-    df$estimated_error[l] <- one_pass$error
-    df$std[l] <- one_pass$std
+  for (i in 1:length(df$lambda)){
+    # for each lambda, choose the best alpha which gives min error
+    # store the data in alpha_best, error, std, always store the min one
+    # initiate with alpha = 0
+    alpha_best <- 0
+    current_pass <- cv.one_passEN(lambda = df$lambda[i], alpha = alpha_best) #
+    error <- current_pass$error
+    std <- current_pass$std
+
+    for ( j in 2:length(alphas)){
+      current_pass <- cv.one_passEN(lambda = df$lambda[i], alpha = alphas[j])
+
+      if(error > current_pass$error){
+
+        error <- current_pass$error
+        std <- current_pass$std
+        alpha_best = alphas[j]
+
+      }
+    }
+    #then put it in the df table, with the selected alpha and corresponding error and std
+
+    df$estimated_error[i] <- error
+    df$std[i] <- std
+    df$alpha[i] <- alpha_best
   }
 
+  #the confidence internval of MSE
   df$ci_up <- df$estimated_error + df$std
   df$ci_down <- df$estimated_error - df$std
-
 
   if (!one_stderr_rule){
 
@@ -75,7 +105,9 @@ cv.lasso <- function(lambda_max = 5,
 
 }
 
-plot_cv_lasso <- function(cv_results){
+# Plotting function
+
+plot_cv_EN <- function(cv_results){
 
   dta <- cv_results$errors
 
@@ -95,6 +127,5 @@ plot_cv_lasso <- function(cv_results){
 
 }
 
-#results <- cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE)
-
-#plot_cv_lasso(cv_results = results)
+# cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE) %>%
+#   plot_cv_lasso()

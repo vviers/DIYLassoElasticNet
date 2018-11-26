@@ -1,6 +1,12 @@
 # In a function: simple version that works
 # Assumes that X and y have already been properly standardized.
-elasticNet.solve <- function(y, X, lambda_l1 = .01, lambda_l2 = .01, epsilon = .01){
+elasticNet.solve <- function(y, X, lambda = .01, alpha = .5, epsilon = .01){
+
+  print(paste0("lambda ", lambda, ", alpha ", alpha))
+
+  RSS <- function(betas){
+    return((1/(2*length(y))) * sum((y - X %*% betas)^2) + lambda * (alpha * sum(abs(betas)) + (1-alpha) * sum(betas^2))) # penalty
+  }
 
   # rescale data
   X <- scale(X)
@@ -16,13 +22,15 @@ elasticNet.solve <- function(y, X, lambda_l1 = .01, lambda_l2 = .01, epsilon = .
   hasConverged <- FALSE
 
   #Keep track of the runs (useful for debugging)
-  run <- 1
+  #run <- 1
 
   while(!hasConverged){
 
     #print(run)
 
-    betas_before <- betas # to keep track of convergence
+    betas_before <- betas
+    RSS_before <- RSS(betas = betas_before) # to keep track of convergence
+    #print(RSS_before)
 
     # update all betas until they converge
 
@@ -39,13 +47,15 @@ elasticNet.solve <- function(y, X, lambda_l1 = .01, lambda_l2 = .01, epsilon = .
       beta_star = cov(X[, j], r_j)
 
       # Update beta_j with soft_thresholding
-      betas[j] <- sign(beta_star) * max(c((abs(beta_star) - lambda_l1), 0)) / (1 + lambda_l2)
+      betas[j] <- sign(beta_star) * (max(c((abs(beta_star) - lambda*alpha), 0))) / (1 + lambda*(1-alpha))
 
     }
 
     # check convergence (no beta moved more than epsilon)
     # NB: sum(c(FALSE, FALSE, FALSE)) => 0
-    hasConverged <- (sum(abs(betas_before - betas) > epsilon) == 0)
+    #hasConverged <- (sum(abs(betas_before - betas) > epsilon) == 0)
+
+    hasConverged <- abs(RSS(betas = betas) - RSS_before) < epsilon
 
     #run <- run+1
 

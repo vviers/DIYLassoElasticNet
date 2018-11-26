@@ -2,8 +2,10 @@
 # Assumes that X and y have already been properly standardized.
 lasso.solve <- function(y, X, lambda = .01, epsilon = .01){
 
+  #print(lambda)
+
   RSS <- function(betas){
-    return(sum((y - X %*% betas)^2) + lambda * sum(abs(betas)))
+    return((1/(2*length(y))) * sum((y - X %*% betas)^2) + lambda * sum(abs(betas)))
   }
 
   # Standardize X
@@ -29,7 +31,7 @@ lasso.solve <- function(y, X, lambda = .01, epsilon = .01){
 
     betas_before <- betas
     RSS_before <- RSS(betas = betas_before) # to keep track of convergence
-    print(RSS_before)
+    #print(RSS_before)
 
     # update all betas until they converge
 
@@ -50,7 +52,7 @@ lasso.solve <- function(y, X, lambda = .01, epsilon = .01){
 
     }
 
-    print(RSS(betas = betas))
+    #print(RSS(betas = betas))
 
     # check convergence (no beta moved more than epsilon)
     # NB: sum(c(FALSE, FALSE, FALSE)) => 0
