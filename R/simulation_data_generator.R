@@ -15,7 +15,7 @@ library(mvtnorm) # multivariate normal distribution
 #
 # sigma_error <- 3
 
-createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_datasets){
+createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_datasets, sigma_error){
 
   n_total_per_dataset <- (n_train + n_validation + n_test)
   n_total <- n_total_per_dataset * num_datasets
@@ -24,7 +24,7 @@ createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_d
   # Init all betas = 0
   betas <- numeric(p)
   # List potential values for beta:
-  potential_betas <- seq(-10, 10, by = .5)[-21] # remove zero !
+  potential_betas <- seq(-10, 10, by = .5)[-c(20, 21, 22)] # remove small values zero !
 
   # Pick nonzero betas (with prob = beta_sparsity)
   non_zero_betas <- sample(c(TRUE, FALSE), size = p, replace = TRUE, prob = c(beta_sparsity, 1- beta_sparsity))
@@ -48,23 +48,29 @@ createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_d
   # y
   y <- X %*% betas + rnorm(n_total, 0, sigma_error)
 
-  # rescale y
-  y <- y / sd(y)
+  dataset_name <- sprintf("data/data-p_%i_sparsity_%.2f_sigm_%f_ntrain_%i.RData",
+                          p, beta_sparsity, sigma_error, n_train)
 
   # Save and export data:
-  # Put it in dataframe and do train/validate/test split
-  df <- data.frame(cbind(y, X))
-  colnames(df) <- c("y", paste0("X", 1:p))
-
-  df$dataset_number <- rep(1:num_datasets, each = n_total_per_dataset)
-
-  df$type_data <- rep(rep(c("training", "validation", "test"), times = c(n_train, n_validation, n_test)),
-                      times = num_datasets)
+  # Do the splitting
+  train <- 1:n_train
+  validate <- (n_train+1):(n_train+n_validation)
+  test <- !which(1:n_train+n_validation)
+  Xtrain <- X[, ]
+  Xvalidate <- X[n_train+1:n_train+n_validation, ]
+  X
+  # colnames(df) <- c("y", paste0("X", 1:p))
+  #
+  # df$dataset_number <- rep(1:num_datasets, each = n_total_per_dataset)
+  #
+  # df$type_data <- rep(rep(c("training", "validation", "test"), times = c(n_train, n_validation, n_test)),
+  #                     times = num_datasets)
 
   # Give it a meaningful name
 
-  dataset_name <- sprintf("data/data-p_%i_sparsity_%.2f_sigm_%.2f_ntrain_%i.csv",
-                          p, beta_sparsity, sigma_error, n_train)
+  dataset_name <- sprintf("data/data-p_%i_sparsity_%.2f_sigm_%f_ntrain_%i.RData",
+                           p, beta_sparsity, sigma_error, n_train)
 
-  write.csv(df, file = dataset_name, row.names = F)
+
+  save("betas", "y", "X", file = dataset_name)
 }

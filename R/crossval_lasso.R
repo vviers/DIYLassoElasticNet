@@ -1,10 +1,7 @@
 # Clean Global Environment
 library(ggplot2)
 library(magrittr)
-rm(list = ls())
 
-# Get Data
-source("R/simulation_data.R")
 # Get Lasso Solver
 source("R/coordinate_descent_lasso.R")
 # Get Predict Function
@@ -101,5 +98,6 @@ plot_cv_lasso <- function(cv_results){
 
 }
 
-cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE) %>%
-  plot_cv_lasso()
+#results <- cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE)
+
+#plot_cv_lasso(cv_results = results)
