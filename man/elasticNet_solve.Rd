@@ -4,7 +4,7 @@
 \alias{elasticNet_solve}
 \title{elasticNet_solve}
 \usage{
-elasticNet_solve(y, X, lambda = 0.01, alpha = 0.5, epsilon = 0.01)
+elasticNet_solve(y, X, lambda = 0.01, alpha = 0.5, epsilon = 1)
 }
 \arguments{
 \item{y}{a nx1 label vector}

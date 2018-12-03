@@ -9,9 +9,9 @@
 #' @return a px1 vector of betas
 #'
 #'@export
-elasticNet_solve <- function(y, X, lambda = .01, alpha = .5, epsilon = .01){
+elasticNet_solve <- function(y, X, lambda = .01, alpha = .5, epsilon = 1){
 
-  print(paste0("lambda ", lambda, ", alpha ", alpha))
+  #print(paste0("lambda ", lambda, ", alpha ", alpha))
 
   RSS <- function(betas){
     return((1/(2*length(y))) * sum((y - X %*% betas)^2) + lambda * (alpha * sum(abs(betas)) + (1-alpha) * sum(betas^2))) # penalty

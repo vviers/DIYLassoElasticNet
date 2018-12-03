@@ -4,7 +4,7 @@
 \alias{lasso_solve}
 \title{lasso_solve}
 \usage{
-lasso_solve(y, X, lambda = 0.01, epsilon = 0.1)
+lasso_solve(y, X, lambda = 0.01, epsilon = 1)
 }
 \arguments{
 \item{y}{a nx1 label vector}
