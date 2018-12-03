@@ -1,21 +1,17 @@
-library(mvtnorm) # multivariate normal distribution
-
-# p <- 30
-#
-# beta_sparsity <- .3 # % of non_zero coefficients
-#
-# n_train <- 20
-# n_validation <- n_train
-# n_test <- 200
-# num_datasets <- 50
-# n_total_per_dataset <- (n_train + n_validation + n_test)
-# n_total <- n_total_per_dataset * num_datasets
-#
-#
-#
-# sigma_error <- 3
-
-createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_datasets, sigma_error){
+#' createDataSet
+#' @description creates simulated data to test our solvers on
+#' @param p the number of dimensions in the simulated data
+#' @param beta_sparsity the proportion of true non-zero betas
+#' @param n_train number of training observations
+#' @param n_validation number of validation (tuning) observations
+#' @param n_test number of testing observations
+#' @param num_datasets number of different datasets to generate
+#' @param sigma_error noisiness of the Data Generating Process
+#'
+#' @return a list containing all 50 generated datasets
+#'
+#' @export
+createDataSet <- function(p, beta_sparsity, n_train = 20, n_validation =20, n_test = 200, num_datasets = 50, sigma_error){
 
   n_total_per_dataset <- (n_train + n_validation + n_test)
   n_total <- n_total_per_dataset * num_datasets
@@ -55,12 +51,13 @@ createDataSet <- function(p, beta_sparsity, n_train, n_validation, n_test, num_d
 
   # Save and export data:
   # Do the splitting
-  train <- 1:n_train
-  validate <- (n_train+1):(n_train+n_validation)
-  test <- !which(1:n_train+n_validation)
-  Xtrain <- X[, ]
-  Xvalidate <- X[n_train+1:n_train+n_validation, ]
-  X
+  #train <- 1:n_train
+  #validate <- (n_train+1):(n_train+n_validation)
+  #test <- !which(1:n_train+n_validation)
+  #Xtrain <- X[, ]
+  #Xvalidate <- X[n_train+1:n_train+n_validation, ]
+  #X
+
   # colnames(df) <- c("y", paste0("X", 1:p))
   #
   # df$dataset_number <- rep(1:num_datasets, each = n_total_per_dataset)

@@ -1,16 +1,16 @@
-#choose alpha,and lambda for elastic net
-
-source("R/coordinate_descent_EN.R")
-source("R/predict.R")
-
-# Clean Global Environment
-library(ggplot2)
-library(magrittr)
-#rm(list = ls())
-
-# Pick Lambda using cross-validation
-
-cv.EN <- function(lambda_max = 10,
+#' cv_EN
+#' @description use cross-validation to find the best values of lambda and alpha
+#'
+#' @param y a nx1 label vector
+#' @param X the design matrix
+#' @param lambda_max maximum lambda to try
+#' @param step_lambda step size between 0 and \code{lambda_max}
+#' @param n_folds the number of folds to use in cross-validation
+#' @param one_stderr_rule whether to use the one-standard-error rule when choosing lambda
+#'
+#' @return a list object containing a data.frame summarizing the error for each pair of lambda/alpha, and the best lambda/alpha
+#' @export
+cv_EN <- function(lambda_max = 10,
                      step_lambda = .1,
                      n_folds = 10,
                      y,
@@ -37,7 +37,7 @@ cv.EN <- function(lambda_max = 10,
       Xtrain = X[folds != i, ]
       ytrain = y[folds != i]
 
-      beta.EN <- elasticNet.solve(ytrain, Xtrain, lambda = lambda, alpha = alpha)
+      beta.EN <- elasticNet_solve(ytrain, Xtrain, lambda = lambda, alpha = alpha)
       ypred <- predict(beta.EN, Xtest)
 
       errors[i] <- mean((ytest - ypred)^2)
@@ -105,27 +105,28 @@ cv.EN <- function(lambda_max = 10,
 
 }
 
-# Plotting function
-
+#' plot_cv_EN
+#' @description plots the result of \code{cv_EN}
+#'
+#' @param cv_results the list returned by \code{cv_EN}
+#' @return a plot
+#' @export
 plot_cv_EN <- function(cv_results){
 
   dta <- cv_results$errors
 
   dta %>%
-    ggplot(aes(x = lambda)) +
-    geom_point(aes(y = estimated_error, color = is_best), size = 1, pch = 3) +
-    geom_point(aes(y = ci_up), color = "red", size = 1, pch = 3) +
-    geom_point(aes(y = ci_down), color = "red", size = 1, pch = 3) +
-    geom_hline(yintercept = dta[which.min(dta$estimated_error), "ci_up"],
+    ggplot2::ggplot(aes(x = lambda)) +
+    ggplot2::geom_point(aes(y = estimated_error, color = is_best), size = 1, pch = 3) +
+    ggplot2::geom_point(aes(y = ci_up), color = "red", size = 1, pch = 3) +
+    ggplot2::geom_point(aes(y = ci_down), color = "red", size = 1, pch = 3) +
+    ggplot2::geom_hline(yintercept = dta[which.min(dta$estimated_error), "ci_up"],
                color = "grey", size = .2) +
-    scale_color_manual(name = "Best Lambda",
+    ggplot2::scale_color_manual(name = "Best Lambda",
                        values = c("TRUE" = "green", "FALSE" = "black")) +
-    geom_segment(aes(x=cv_results$best_lambda, xend=cv_results$best_lambda,
+    ggplot2::geom_segment(aes(x=cv_results$best_lambda, xend=cv_results$best_lambda,
                      y=0, yend = dta[dta$is_best, "estimated_error"]),
                  lty = "dashed", size = .25, color = "green") +
-    ylab("10-fold average cross-validation error")
+    ggplot2::ylab("10-fold average cross-validation error")
 
 }
-
-# cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE) %>%
-#   plot_cv_lasso()

@@ -1,6 +1,15 @@
-# In a function: simple version that works
-# Assumes that X and y have already been properly standardized.
-elasticNet.solve <- function(y, X, lambda = .01, alpha = .5, epsilon = .01){
+#' elasticNet_solve
+#' @description a Solver for the ElasticNet problem
+#' @param y a nx1 label vector
+#' @param X the design matrix
+#' @param lambda the weight of the overall penalty term
+#' @param alpha the relative weigth given to the L1 (Lasso) penalty
+#' @param epsilon the smallest change in penalised RSS that defines convergence
+#'
+#' @return a px1 vector of betas
+#'
+#'@export
+elasticNet_solve <- function(y, X, lambda = .01, alpha = .5, epsilon = .01){
 
   print(paste0("lambda ", lambda, ", alpha ", alpha))
 
