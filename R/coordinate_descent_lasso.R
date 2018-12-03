@@ -1,6 +1,15 @@
-# In a function: simple version that works
+#' lasso_solve
+#' @description a Solver for the Lasso problem
+#' @param y a nx1 label vector
+#' @param X the design matrix
+#' @param lambda the weight of the penalty term in the Lasso problem
+#' @param epsilon the smallest change in penalised RSS that defines convergence
+#'
+#' @return a px1 vector of betas
+#'
+#'@export
 # Assumes that X and y have already been properly standardized.
-lasso.solve <- function(y, X, lambda = .01, epsilon = .01){
+lasso_solve <- function(y, X, lambda = .01, epsilon = .1){
 
   #print(lambda)
 

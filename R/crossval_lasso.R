@@ -1,15 +1,16 @@
-# Clean Global Environment
-library(ggplot2)
-library(magrittr)
-
-# Get Lasso Solver
-source("R/coordinate_descent_lasso.R")
-# Get Predict Function
-source("R/predict.R")
-
-# Pick Lambda using cross-validation
-
-cv.lasso <- function(lambda_max = 5,
+#' cv_lasso
+#' @description use cross-validation to find the best value of lambda
+#'
+#' @param y a nx1 label vector
+#' @param X the design matrix
+#' @param lambda_max maximum lambda to try
+#' @param step_lambda step size between 0 and \code{lambda_max}
+#' @param n_folds the number of folds to use in cross-validation
+#' @param one_stderr_rule whether to use the one-standard-error rule when choosing lambda
+#'
+#' @return a list object containing a data.frame summarizing the error for each lambda, and the best lambda
+#' @export
+cv_lasso <- function(lambda_max = 5,
                      step_lambda = .1,
                      n_folds = 10,
                      y,
@@ -31,7 +32,7 @@ cv.lasso <- function(lambda_max = 5,
       Xtrain = X[folds != i, ]
       ytrain = y[folds != i]
 
-      beta.lasso <- lasso.solve(ytrain, Xtrain, lambda = lambda)
+      beta.lasso <- lasso_solve(ytrain, Xtrain, lambda = lambda)
       ypred <- predict(beta.lasso, Xtest)
 
       errors[i] <- mean((ytest - ypred)^2)
@@ -75,26 +76,28 @@ cv.lasso <- function(lambda_max = 5,
 
 }
 
+#' plot_cv.lasso
+#' @description plots the result of \code{cv_lasso}
+#'
+#' @param cv_results the list returned by \code{cv_lasso}
+#' @return a plot
+#' @export
 plot_cv_lasso <- function(cv_results){
 
   dta <- cv_results$errors
 
   dta %>%
-    ggplot(aes(x = lambda)) +
-    geom_point(aes(y = estimated_error, color = is_best), size = 1, pch = 3) +
-    geom_point(aes(y = ci_up), color = "red", size = 1, pch = 3) +
-    geom_point(aes(y = ci_down), color = "red", size = 1, pch = 3) +
-    geom_hline(yintercept = dta[which.min(dta$estimated_error), "ci_up"],
+    ggplot2::ggplot(aes(x = lambda)) +
+    ggplot2::geom_point(aes(y = estimated_error, color = is_best), size = 1, pch = 3) +
+    ggplot2::geom_point(aes(y = ci_up), color = "red", size = 1, pch = 3) +
+    ggplot2::geom_point(aes(y = ci_down), color = "red", size = 1, pch = 3) +
+    ggplot2::geom_hline(yintercept = dta[which.min(dta$estimated_error), "ci_up"],
                color = "grey", size = .2) +
-    scale_color_manual(name = "Best Lambda",
+    ggplot2::scale_color_manual(name = "Best Lambda",
                        values = c("TRUE" = "green", "FALSE" = "black")) +
-    geom_segment(aes(x=cv_results$best_lambda, xend=cv_results$best_lambda,
+    ggplot2::geom_segment(aes(x=cv_results$best_lambda, xend=cv_results$best_lambda,
                      y=0, yend = dta[dta$is_best, "estimated_error"]),
                  lty = "dashed", size = .25, color = "green") +
-    ylab("10-fold average cross-validation error")
+    ggplot2::ylab("10-fold average cross-validation error")
 
 }
-
-#results <- cv.lasso(lambda_max = 3, step_lambda  = .1, n_folds = 10, y = y, X = X, TRUE)
-
-#plot_cv_lasso(cv_results = results)
