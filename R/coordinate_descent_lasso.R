@@ -9,7 +9,7 @@
 #'
 #'@export
 # Assumes that X and y have already been properly standardized.
-lasso_solve <- function(y, X, lambda = .01, epsilon = .1){
+lasso_solve <- function(y, X, lambda = .01, epsilon = 1){
 
   #print(lambda)
 
