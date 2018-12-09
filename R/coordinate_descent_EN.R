@@ -55,8 +55,8 @@ elasticNet_solve <- function(y, X, lambda = .01, alpha = .5, epsilon = 1){
       # we can use cov because y and X are all standardized
       beta_star = cov(X[, j], r_j)
 
-      # Update beta_j with soft_thresholding
-      betas[j] <- sign(beta_star) * (max(c((abs(beta_star) - lambda*alpha), 0))) / (1 + lambda*(1-alpha))
+      # Update beta_j
+      betas[j] <- sign(beta_star) * (max(c((abs(beta_star) - lambda*alpha), 0))) / (1 + 2*lambda*(1-alpha))
 
     }
 
