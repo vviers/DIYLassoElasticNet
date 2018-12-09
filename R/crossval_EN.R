@@ -99,7 +99,7 @@ cv_EN <- function(lambda_max = 10,
 
   df$is_best <- df$lambda == best_lambda
 
-  cat("Best lambda is", best_lambda)
+  cat("Best lambda is", best_lambda, "with alpha = ", alpha_best, "\n")
 
   return(list(errors = df, best_lambda = best_lambda))
 

@@ -70,7 +70,7 @@ cv_lasso <- function(lambda_max = 5,
 
   df$is_best <- df$lambda == best_lambda
 
-  cat("Best lambda is", best_lambda)
+  cat("Best lambda is", best_lambda, "\n")
 
   return(list(errors = df, best_lambda = best_lambda))
 
