@@ -4,14 +4,14 @@
 \alias{createData}
 \title{createData}
 \usage{
-createData(betas, n, sigma_error)
+createData(n, sigma_error, example = c(1, 2, 3, 4, 5))
 }
 \arguments{
-\item{betas}{a vector of beta values}
-
 \item{n}{number of observations}
 
 \item{sigma_error}{noisiness of the Data Generating Process}
+
+\item{example}{the numeric id of the simulation setting to be used (see report)}
 }
 \value{
 a list containing \code{X}, \code{y} and \code{betas}
